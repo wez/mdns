@@ -1,4 +1,4 @@
-name: Rust
+name: fmt
 
 on:
   push:
@@ -10,12 +10,11 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  check-code-formatting:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Build
-        run: cargo build --verbose --all-features
-      - name: Run tests
-        run: cargo test --verbose --all-features
+      - name: Format
+        run: cargo fmt --all -- --check
+
