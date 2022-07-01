@@ -1,6 +1,8 @@
 use crate::dns_parser::rdata::Record;
 use crate::dns_parser::rdata::*;
 use crate::dns_parser::Error;
+#[cfg(feature = "with-serde")]
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// The TYPE value according to RFC 1035
