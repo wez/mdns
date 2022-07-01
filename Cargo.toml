@@ -1,0 +1,20 @@
+[package]
+name = "wez-mdns"
+version = "0.1.0"
+edition = "2021"
+license = "MIT/Apache-2.0"
+readme = "README.md"
+keywords = ["dns", "domain", "name", "parser"]
+categories = ["parser-implementations"]
+authors = ["Paul Colomiets <paul@colomiets.name>", "Wez Furlong <wez@wezfurlong.org>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+with-serde = ["serde"]
+
+[dependencies]
+byteorder = "1"
+serde = { version = "1.0", optional = true, features = ["derive"]}
+thiserror = "1.0.0"
+
