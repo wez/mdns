@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT/Apache-2.0"
 readme = "README.md"
-keywords = ["dns", "domain", "name", "parser"]
-categories = ["parser-implementations"]
-authors = ["Paul Colomiets <paul@colomiets.name>", "Wez Furlong <wez@wezfurlong.org>"]
+keywords = ["dns", "domain", "name", "parser", "mdns", "discovery", "home-automation"]
+categories = ["parser-implementations", "mdns", "home-automation", "mdns"]
+authors = ["Wez Furlong <wez@wezfurlong.org>", "Paul Colomiets <paul@colomiets.name>"]
+repository = "https://github.com/wez/mdns"
+description = "Robust mDNS implementation for home automation"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
