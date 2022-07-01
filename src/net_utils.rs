@@ -1,3 +1,4 @@
+//! Networking helpers
 pub use crate::mac_addr::*;
 pub use if_addrs::{get_if_addrs, IfAddr, Ifv4Addr, Ifv6Addr, Interface};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, UdpSocket};
@@ -21,6 +22,8 @@ pub fn local_address() -> std::io::Result<IpAddr> {
     local_address_for_destination(Ipv4Addr::new(8, 8, 8, 8).into())
 }
 
+/// Given an IP address, determine the Interface on the local machine
+/// that is associated with it.
 pub fn interface_for_destination(ip: IpAddr) -> Option<Interface> {
     let addr = local_address_for_destination(ip).ok()?;
     let interfaces = if_addrs::get_if_addrs().ok()?;

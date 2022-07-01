@@ -14,6 +14,7 @@ use thiserror::*;
 const MULTICAST_ADDR: Ipv4Addr = Ipv4Addr::new(224, 0, 0, 251);
 const MULTICAST_PORT: u16 = 5353;
 
+/// Errors that may occur during resolution/discovery
 #[derive(Debug, Error)]
 pub enum Error {
     #[error(transparent)]
@@ -57,6 +58,7 @@ async fn create_socket() -> Result<UdpSocket> {
     Ok(socket)
 }
 
+/// An mDNS query response
 #[derive(Debug)]
 pub struct Response {
     pub answers: Vec<Record>,
@@ -64,6 +66,7 @@ pub struct Response {
     pub additional: Vec<Record>,
 }
 
+/// The resolved information about a host (or rather, a service)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Host {
     /// A friendly name for this instance.
@@ -104,6 +107,7 @@ impl Response {
             .chain(self.nameservers.iter())
     }
 
+    /// Compose the response as an array of Host structs
     pub fn hosts(&self) -> Vec<Host> {
         let mut result = vec![];
 
@@ -187,6 +191,7 @@ impl Response {
     }
 }
 
+/// mDNS Records compose into a [Response](struct.Record.html)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Record {
     pub name: String,
@@ -206,6 +211,7 @@ impl Record {
     }
 }
 
+/// mDNS record data of various kinds
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RecordKind {
     A(Ipv4Addr),
@@ -307,6 +313,11 @@ pub async fn resolve_one<S: AsRef<str>>(
     Ok(response)
 }
 
+/// Controls how to perform the query.
+/// You will typically use one of the associated constants
+/// [DISCOVERY](#associatedconstant.DISCOVERY),
+/// [SERVICE_LOOKUP](#associatedconstant.SERVICE_LOOKUP),
+/// [HOST_LOOKUP](#associatedconstant.HOST_LOOKUP)
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct QueryParameters {
     pub query_type: QueryType,

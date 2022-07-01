@@ -1,3 +1,4 @@
+//! Working with MAC addresses
 #[cfg(feature = "with-serde")]
 use serde::{Deserialize, Deserializer};
 use socket2::{Domain, Socket, Type};
@@ -50,10 +51,12 @@ impl<'de> Deserialize<'de> for MacAddress {
 }
 
 impl MacAddress {
+    /// Construct a MacAddress from raw bytes
     pub fn with_bytes(bytes: [u8; 6]) -> Self {
         Self(bytes)
     }
 
+    /// Return the raw byte slice associated with the address
     pub fn as_bytes(&self) -> [u8; 6] {
         self.0
     }
