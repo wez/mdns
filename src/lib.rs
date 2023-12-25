@@ -459,20 +459,22 @@ pub async fn resolve<S: AsRef<str>>(
 
     smol::spawn(async move {
         let mut retry_interval = params.base_repeat_interval;
+        let mut last_send = Instant::now();
 
         loop {
             let now = Instant::now();
 
             if let Some(deadline) = deadline {
                 if now >= deadline {
+                    log::trace!("resolve loop completing because {now:?} >= {deadline:?}");
                     break;
                 }
             }
 
             let recv_deadline = match retry_interval {
                 Some(retry) => match deadline {
-                    Some(overall) => (now + retry).min(overall),
-                    None => now + retry,
+                    Some(overall) => (last_send + retry).min(overall),
+                    None => last_send + retry,
                 },
                 None => match deadline {
                     Some(overall) => overall,
@@ -480,6 +482,7 @@ pub async fn resolve<S: AsRef<str>>(
                         // Shouldn't be possible and we should
                         // have caught this in the params validation
                         // at entry to the function.
+                        log::error!("resolve loop aborting because params are invalid");
                         return Err(Error::InvalidQueryParams);
                     }
                 },
@@ -503,9 +506,8 @@ pub async fn resolve<S: AsRef<str>>(
                     Ok(dns) => {
                         let response = Response::new(&dns);
                         if !valid_source_address(addr) {
-                            eprintln!(
-                                "ignoring response {:?} from {:?} which is not local",
-                                response, addr
+                            log::warn!(
+                                "ignoring response {response:?} from {addr:?} which is not local",
                             );
                         } else {
                             let matched = response
@@ -518,13 +520,15 @@ pub async fn resolve<S: AsRef<str>>(
                         }
                     }
                     Err(e) => {
-                        log::trace!("failed to parse packet: {:?} received from {:?}", e, addr);
+                        log::trace!("failed to parse packet: {e:?} received from {addr:?}");
                     }
                 }
             } else {
+                log::trace!("resolve loop read timeout; send another query");
                 // retry_interval exceeded, so send another query
                 let data = make_query(&service_name, params.query_type)?;
                 socket.send_to(&data, addr).await?;
+                last_send = Instant::now();
 
                 // And compute next interval
                 match retry_interval.take() {
@@ -549,9 +553,11 @@ pub async fn resolve<S: AsRef<str>>(
                         retry_interval.replace(retry);
                     }
                 }
+                log::trace!("updated retry_interval is now {retry_interval:?}");
             }
         }
 
+        log::trace!("resolve loop completing OK");
         Result::Ok(())
     })
     .detach();
